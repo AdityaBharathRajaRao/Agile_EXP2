@@ -21,12 +21,12 @@ describe('Sidebar Component', () => {
       </BrowserRouter>
     );
     
-    // Check for Add Food link
-    const addLink = screen.getByText(/add food/i);
+    // Check for Add Items link (not "Add Food")
+    const addLink = screen.getByText(/add items/i);
     expect(addLink).toBeInTheDocument();
     
-    // Check for List Food link
-    const listLink = screen.getByText(/list food/i);
+    // Check for List Items link (not "List Food")
+    const listLink = screen.getByText(/list items/i);
     expect(listLink).toBeInTheDocument();
     
     // Check for Orders link
