@@ -18,7 +18,8 @@ describe('Add Component', () => {
     render(<Add />);
     
     // Check for form elements
-    expect(screen.getByLabelText(/food name/i)).toBeInTheDocument();
+    const nameLabel = screen.getByText(/food name/i, { exact: false });
+    expect(nameLabel).toBeInTheDocument();
     expect(screen.getByLabelText(/description/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/price/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/category/i)).toBeInTheDocument();
