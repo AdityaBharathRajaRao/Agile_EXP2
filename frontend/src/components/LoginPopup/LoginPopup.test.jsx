@@ -38,7 +38,7 @@ describe('LoginPopup Component', () => {
     );
     
     // Check if the component renders with Sign Up as default state
-    expect(screen.getByText('Sign Up')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Sign Up' })).toBeInTheDocument();
     
     // Check if form elements exist
     expect(screen.getByPlaceholderText('Your name')).toBeInTheDocument();
@@ -46,7 +46,7 @@ describe('LoginPopup Component', () => {
     expect(screen.getByPlaceholderText('Password')).toBeInTheDocument();
     
     // Check if the button exists
-    expect(screen.getByText('Create account')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Create account' })).toBeInTheDocument();
     
     // Check if the login link exists
     expect(screen.getByText('Login here')).toBeInTheDocument();
@@ -60,22 +60,21 @@ describe('LoginPopup Component', () => {
     );
     
     // Initially in Sign Up mode
-    expect(screen.getByText('Sign Up')).toBeInTheDocument();
-    expect(screen.getByText('Create account')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Sign Up' })).toBeInTheDocument();
     
     // Switch to Login mode
     fireEvent.click(screen.getByText('Login here'));
     
     // Now in Login mode
-    expect(screen.getByText('Login')).toBeInTheDocument();
-    expect(screen.getByText('Login')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Login' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Login' })).toBeInTheDocument();
     expect(screen.queryByPlaceholderText('Your name')).not.toBeInTheDocument();
     
     // Switch back to Sign Up mode
     fireEvent.click(screen.getByText('Click here'));
     
     // Back in Sign Up mode
-    expect(screen.getByText('Sign Up')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Sign Up' })).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Your name')).toBeInTheDocument();
   });
 });
