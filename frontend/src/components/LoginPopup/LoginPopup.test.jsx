@@ -1,72 +1,81 @@
-import React, { useContext, useState } from 'react'
-import './LoginPopup.css'
-import { assets } from '../../assets/assets'
-import { StoreContext } from '../../Context/StoreContext'
-import axios from 'axios'
-import { toast } from 'react-toastify'
+import { describe, test, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import LoginPopup from './LoginPopup';
+import { StoreContext } from '../../Context/StoreContext';
 
-const LoginPopup = ({ setShowLogin }) => {
+// Mock dependencies
+vi.mock('axios', () => ({
+  default: {
+    post: vi.fn()
+  }
+}));
 
-    const { setToken, url,loadCartData } = useContext(StoreContext)
-    const [currState, setCurrState] = useState("Sign Up");
+vi.mock('react-toastify', () => ({
+  toast: {
+    error: vi.fn()
+  }
+}));
 
-    const [data, setData] = useState({
-        name: "",
-        email: "",
-        password: ""
-    })
+describe('LoginPopup Component', () => {
+  const mockSetShowLogin = vi.fn();
+  
+  const contextValue = {
+    setToken: vi.fn(),
+    url: 'http://localhost:4000',
+    loadCartData: vi.fn()
+  };
 
-    const onChangeHandler = (event) => {
-        const name = event.target.name
-        const value = event.target.value
-        setData(data => ({ ...data, [name]: value }))
-    }
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
-    const onLogin = async (e) => {
-        e.preventDefault()
+  test('renders login form correctly', () => {
+    render(
+      <StoreContext.Provider value={contextValue}>
+        <LoginPopup setShowLogin={mockSetShowLogin} />
+      </StoreContext.Provider>
+    );
+    
+    // Check if the component renders with Sign Up as default state
+    expect(screen.getByText('Sign Up')).toBeInTheDocument();
+    
+    // Check if form elements exist
+    expect(screen.getByPlaceholderText('Your name')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Your email')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Password')).toBeInTheDocument();
+    
+    // Check if the button exists
+    expect(screen.getByText('Create account')).toBeInTheDocument();
+    
+    // Check if the login link exists
+    expect(screen.getByText('Login here')).toBeInTheDocument();
+  });
 
-        let new_url = url;
-        if (currState === "Login") {
-            new_url += "/api/user/login";
-        }
-        else {
-            new_url += "/api/user/register"
-        }
-        const response = await axios.post(new_url, data);
-        if (response.data.success) {
-            setToken(response.data.token)
-            localStorage.setItem("token", response.data.token)
-            loadCartData({token:response.data.token})
-            setShowLogin(false)
-        }
-        else {
-            toast.error(response.data.message)
-        }
-    }
-
-    return (
-        <div className='login-popup'>
-            <form onSubmit={onLogin} className="login-popup-container">
-                <div className="login-popup-title">
-                    <h2>{currState}</h2> <img onClick={() => setShowLogin(false)} src={assets.cross_icon} alt="" />
-                </div>
-                <div className="login-popup-inputs">
-                    {currState === "Sign Up" ? <input name='name' onChange={onChangeHandler} value={data.name} type="text" placeholder='Your name' required /> : <></>}
-                    <input name='email' onChange={onChangeHandler} value={data.email} type="email" placeholder='Your email' />
-                    <input name='password' onChange={onChangeHandler} value={data.password} type="password" placeholder='Password' required />
-                </div>
-                <button>{currState === "Login" ? "Login" : "Create account"}</button>
-                <div className="login-popup-condition">
-                    <input type="checkbox" name="" id="" required/>
-                    <p>By continuing, i agree to the terms of use & privacy policy.</p>
-                </div>
-                {currState === "Login"
-                    ? <p>Create a new account? <span onClick={() => setCurrState('Sign Up')}>Click here</span></p>
-                    : <p>Already have an account? <span onClick={() => setCurrState('Login')}>Login here</span></p>
-                }
-            </form>
-        </div>
-    )
-}
-
-export default LoginPopup
+  test('switches between login and signup modes', () => {
+    render(
+      <StoreContext.Provider value={contextValue}>
+        <LoginPopup setShowLogin={mockSetShowLogin} />
+      </StoreContext.Provider>
+    );
+    
+    // Initially in Sign Up mode
+    expect(screen.getByText('Sign Up')).toBeInTheDocument();
+    expect(screen.getByText('Create account')).toBeInTheDocument();
+    
+    // Switch to Login mode
+    fireEvent.click(screen.getByText('Login here'));
+    
+    // Now in Login mode
+    expect(screen.getByText('Login')).toBeInTheDocument();
+    expect(screen.getByText('Login')).toBeInTheDocument();
+    expect(screen.queryByPlaceholderText('Your name')).not.toBeInTheDocument();
+    
+    // Switch back to Sign Up mode
+    fireEvent.click(screen.getByText('Click here'));
+    
+    // Back in Sign Up mode
+    expect(screen.getByText('Sign Up')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Your name')).toBeInTheDocument();
+  });
+});
